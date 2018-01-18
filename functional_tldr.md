@@ -2,8 +2,9 @@
 ### A TL;DR by Perry Cate '19
 
 Disclaimer: I created this as my own study tool. I have made aggressive,
-opinionated choices about what to include. (That said, suggestions, issues, and
-pull requests are always welcome!)
+opinionated choices about what to include.
+
+(That said, suggestions, issues, and pull requests are always welcome!)
 
 
 ## Things not Included
@@ -322,7 +323,7 @@ etc.) _`5`_
  * How you schedule jobs impacts performance
     * Some jobs may depend on each other
  * Greedy scheduling - give a task to a processor as soon as processor is free
-    * They're decent, used in practice.
+    * It's decent, used in practice.
 
 ### Parallel Collections
  * Lists are bad
