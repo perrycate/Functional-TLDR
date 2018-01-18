@@ -10,27 +10,31 @@ requests are always welcome!)
  * History of Functional Languages
  * Names of People
  * Anything I think won't be on the final exam.
- * Some syntax stuff (|>, etc.)
- * Inference Rule Notation (will figure out how to format later)
+ * Some syntax stuff (|>, module sig/struct syntax, etc.)
+ * Inference Rule Notation (will add later)
+ * Type Inference (might be added later)
+ * F# stuff
 
 
 ## Terms
-**Expressions**: Computations. _2+3_
-**Values**: Results of computations. Not every computation has one. (Errors,
+ * **Expressions**: Computations. _2+3_
+ * **Values**: Results of computations. Not every computation has one. (Errors,
 etc.) _5_
-**Tuple**: Fixed, finite, ordered collection of values.
-**Unit**: Tuple with zero fields. _()_
-**List**: Like a tuple but everything is the same type
-**Inductive Data Type**: Has collection of base cases, bunch of inductive cases
-that build new values from pre-existing (smaller) values
-**Combinator Libraries**: Simple functions, composable for complex tasks. _map,
-fold, reduce, etc._
-**Binding Occurrence**: Place where a variable is defined
-**Free Variable**: Variable with a binding occurrence not in scope
-  * Theorem: well-typed programs have no free variables.
-**Valuable Expression**: Always terminates, no side effects, produces a value
-**Total Function**: Terminates on all arguments of input, produces a value
-  * Opposite of **Partial Function**
+ * **Tuple**: Fixed, finite, ordered collection of values.
+ * **Record**: Basically a named tuple. _type point2d = { x: float; y: float }_
+ * **Unit**: Tuple with zero fields. _()_
+ * **List**: Like a tuple but everything is the same type
+ * **Inductive Data Type**: Has collection of base cases, bunch of inductive
+ cases that build new values from pre-existing (smaller) values
+ * **Combinator Libraries**: Simple functions, composable for complex tasks.
+ _map, fold, reduce, etc._
+ * **Binding Occurrence**: Place where a variable is defined
+ * **Free Variable**: Variable with a binding occurrence not in scope
+    * Theorem: well-typed programs have no free variables.
+ * **Valuable Expression**: Always terminates, no side effects, produces a
+ value
+ * **Total Function**: Terminates on all arguments of input, produces a value
+    * Opposite of **Partial Function**
 
 
 ## Ocaml
@@ -89,6 +93,9 @@ fold, reduce, etc._
    * applies f to each item in xs, using u as an accumulator
    * can implement basically everything with this, including map
 
+### Ocaml Objects
+ * They exist
+ * Don't bother, nobody uses them.
 
 ## Proof Principles
 
@@ -137,7 +144,7 @@ fold, reduce, etc._
  * Data representations:
     * Tuples - Consecutive bytes of memory (like Java arrays)
     * Lists - Linked List
-    * Parameterized types: Name of type, pointed to address of tuple of data
+    * Parameterized types: Name of type, pointer to address of tuple of data
  * Space allocated when constructors are used or closures are created
  * Often must also estimate heap space used from closures
     * Cost of environment + (varname+value pairs)
@@ -171,3 +178,145 @@ fold, reduce, etc._
     3. **CPS-Converted**: let g input k = f1 input (fun x1 -> f2 x1 (fnu x2 ->
        f3 x2 k))
 
+
+## Modules
+ * They're nice because they:
+    * abstract away how functions are implemented
+    * make it easy to swap implementations later
+ * **Signature**: interface specifying abstract type and set of operations
+   on it
+ * **Structure**: implementation defining types and values satisfying an
+   interface
+    * Can match any signature as long as it has _at least_ the definitions in
+      the signature's interface
+    * Functions not in the signature's interface are inaccessible to clients 
+ * **Functor**: parameterized module, basically a function that takes modules
+   and produces new ones
+    * Makes refactoring and reusing modules easy
+ * **Anonymous Structures**
+    * They're a thing
+    * Can be passed into functors to give a module specific values to use
+
+## Invariants
+ * **Representation Invariant**: Property that's always true for an abstract
+   type
+ * If we prove the invariant holds for all module outputs, we can assume it for
+   any module inputs
+    * Invariant cares about the representation details, which are hidden from
+      the client and thus can't be messed with outside the module.
+    * Is independent of the client = very modular!
+    * Helpful for debugging
+ * Satisfies inv() means invariant is provably always true for some function
+ * Proving stuff:
+    * If a module defines abstract type t, must prove function satisfies inv()
+      if it returns anything of type t
+    * Assume inv(x) for any input x
+    * We don't need to prove anything about unrelated types like int
+    * Pair v of type s1 * s2 is true if fst v is valid for s1 and snd v is
+      valid for s2
+    * v is valid for type s1 option if v is None or v is Some u and u is valid
+      s1
+
+### Proving Implementations are Related
+ * We want to show M1 and M2 both implement signature S
+ * Define is\_related function
+    * Like a representation invariant but between 2 modules instead of 1
+    * Returns true if you can convert a value with one module's underlying
+      implementation to use the other module's implementation (while still
+      being the same value)
+    * is\_related(v1, v2) takes v1 from M1 and v2 from M2
+    * if modules are equivalent, is\_related(v1, v2) implies
+      is\_related(M1.f v1, M2.f v2)
+
+
+## Refs
+ * Reasoning about immutable state is easy
+    * Any invariant you prove stays true
+    * Side effects are bad
+ * Mutable state is a necessary evil
+    * The outside world is mutable (you gotta print stuff out)
+    * Sometimes it's just faster/more efficient
+ * t ref - basically a pointer, like in C
+    * Contents of ref can be read/written, allows mutable state
+       * create new ref with contents 42: ref 42
+       * read contents: !r
+       * write contents: r := 5
+       * if I create a new variable s = r, !s == !r
+    * Recommended: ref pointing to immutable structure (if mutable state is
+      needed at all)
+    * Recommended: encapsulate behind an interface (keep clients from messing
+      with it)
+ * possible use: memoizing functions
+    * basically caching result if something is called repeatedly
+
+### Other mutable things
+ * Mutable records: just write mutable before each field name
+ * Arrays
+    * read the ith element: A.(i)
+    * write the ith element: A.(i) <- 42
+    * make an array of length 42 and all elements initialized to 'x':
+      Array.make 42 'x'
+
+
+## Laziness
+ * Can be used to implement things like infinite streams
+    * type 'a str = Cons of 'a * ('a stream) and 'a stream = unit -> 'a str
+       * Each element in infinite stream is an element cons'd onto a function
+         that produces the next item
+       * We want to avoid executing that function until we're asked to do so
+    * won't be efficient because every time we access the nth element we
+      recalculate 0..(n-1)
+       * Solution: memoize (cache results)
+       * (Assignment 6)
+       * Ocaml has built in lazy keyword that forces a function to delay
+         executing until the last moment
+
+
+## Parallelism
+ * **Parallelism**: Doing things at the same time instead of in sequence
+    * More work done at once
+      * Note: Sometimes threading overhead isn't worth it
+    * Can utilize many cores/computers at once
+    * Important because it's easier to just add multiple cores rather than
+     making cores faster now.
+ * **Concurrency**: Multi-party access to shared resources
+    * Decreases response time
+    * Switch to different thread while current one is waiting on resources
+     (disk, network, etc.)
+    * Can reduce throughput due to cost of thread switching
+ * **Speedup**: Sequential execution time / parallel execution time
+    * Perfect speedup (aka _linear speedp_) if speedup=# of cores
+ * Working with multiple threads is hard
+    * can be nondeterministic
+    * can implicitly influence each other
+    * race conditions
+    * deadlocks
+    * busy waiting
+    * have to deal with synchronization to mitigate this stuff
+    * Functional programming makes it easier
+       * _if code is purely functional, the order that it's run in doesn't
+         matter_ (imperative programming with side effects breaks everything)
+      * **Futures**
+        * Eliminate a lot of multithreading problems
+        * Can fork a function off to run in another thread, and wait on the result
+          when needed
+
+### Scheduling
+ * **Work**: Cost of executing a program with 1 processor
+ * **Span**: Cost of executing a program with an infinite # of processors
+ * Parallelism = work / span
+    * if work = span, it's sequential
+ * How you schedule jobs impacts performance
+    * Some jobs may depend on each other
+ * Greedy scheduling - give a task to a processor as soon as processor is free
+    * They're decent, used in practice.
+
+### Parallel Collections
+ * Lists are bad
+    * Splitting/merging = linear time, thus hard to divide and conquer, thus
+      hard to parallelize things that use lists
+ * Balanced Trees are ok
+    * Splitting is constant time
+    * merging is poly-log
+ * Parallel Sequences
+    * 
