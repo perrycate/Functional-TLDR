@@ -1,7 +1,7 @@
 # Princeton COS326: Functional Programming
 ### A TL;DR by Perry Cate '19
 
-Disclaimer: I created this as my own study tool. I made aggressive, opinionated
+Disclaimer: I created this as my own study tool. I made aggressive, opinionated,
 (hopefully reasonable) choices about what to include.
 
 (That said, suggestions, issues, and pull requests are always welcome!)
