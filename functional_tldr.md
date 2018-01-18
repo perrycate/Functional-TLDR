@@ -14,6 +14,7 @@ requests are always welcome!)
  * Inference Rule Notation (will add later)
  * Type Inference (might be added later)
  * F# stuff
+ * Functional Networking
 
 
 ## Terms
@@ -89,9 +90,17 @@ etc.) _5_
 ### Important functions
  * **map** (f:'a -> 'b) (xs:'a list) : 'b list
    * applies f to every item in xs
- * **reduce** (f:'a -> 'b -> 'b) (u:'b) (xs:'a list) : 'b
+ * **fold\_right** (f:'a -> 'b -> 'b) (xs:'a list) (u:'b) : 'b
    * applies f to each item in xs, using u as an accumulator
-   * can implement basically everything with this, including map
+   * can implement basically everything with this, including map and filter
+   * right associative (works right to left): f(a, f(b, f(c, z)))
+ * **fold\_left** (f:'a -> 'b -> 'a) (u:'a) (xs:'b list) : 'a
+   * same as fold\_right but is left associative: f(f(f(z, a), b), c)
+   * unlike fold\_right, is tail recursive (thus more efficient)
+ * **reduce** (f:'a -> 'b -> 'b) (u:'b) (xs:'a list) : 'b
+   * literally just fold\_right but with arguments in a different order
+ * **filter** (f: 'a -> bool) -> (l: 'a list) -> 'a list
+   * returns list formed of all elements x in l such that f x = true
 
 ### Ocaml Objects
  * They exist
@@ -319,4 +328,15 @@ etc.) _5_
     * Splitting is constant time
     * merging is poly-log
  * Parallel Sequences
-    * 
+    * Operations
+       * Creation (aka tabulate): work=n but span=1
+       * Indexing element, splitting sequence takes constant span
+       * map
+       * scan (like fold) = log n span!
+ * Tips for operations over parallel collections
+    * Associativity allows parallelism
+       * reduce allows log n span for example
+    * Some operations may require multiple passes
+       * example: parallel prefix-sum (ppt 20, slide 91)
+    * Sequential cutoff good for performance, removes overhead for small inputs
+      where threading is unecessary
