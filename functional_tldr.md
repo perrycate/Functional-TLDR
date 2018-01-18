@@ -1,20 +1,20 @@
 # Princeton COS326: Functional Programming
 ### A TL;DR by Perry Cate '19
 
-Disclaimer: This is being created as my own study tool. I will make aggressive,
-opinionated choices about what to include. (But suggestions, issues, and pull
-requests are always welcome!)
+Disclaimer: I created this as my own study tool. I have made aggressive,
+opinionated choices about what to include. (That said, suggestions, issues, and
+pull requests are always welcome!)
 
 
 ## Things not Included
  * History of Functional Languages
  * Names of People
- * Anything I think won't be on the final exam.
  * Some syntax stuff (|>, module sig/struct syntax, etc.)
  * Inference Rule Notation (will add later)
  * Type Inference (might be added later)
  * F# stuff
  * Functional Networking
+ * Anything I think isn't directly relevant to the final exam.
 
 
 ## General Terms
@@ -24,7 +24,7 @@ etc.) _`5`_
  * **Tuple**: Fixed, finite, ordered collection of values. _`(2, 3)`_
  * **Record**: Basically a named tuple. _`type point2d = { x: float; y: float }`_
  * **Unit**: Tuple with zero fields. _`()`_
- * **List**: Like a tuple but everything is the same type
+ * **List**: Like a tuple but everything is the same type _`[2;3]`_
  * **Inductive Data Type**: Has collection of base cases, bunch of inductive
  cases that build new values from pre-existing (smaller) values
  * **Combinator Libraries**: Simple functions, composable for complex tasks.
@@ -41,7 +41,7 @@ etc.) _`5`_
 ## Ocaml
  * Ocaml is functional
     * Functions are values and can be bound to variables as such
-    * Ocaml produces new, unchanging\* data, Java modifies data
+    * Ocaml produces new, unchanging\* (immutable) data, Java modifies data
  * Ocaml is typed
     * Type of expression predicts kind of value it will produce
     * Type system is sound => language is safe.
@@ -54,15 +54,15 @@ etc.) _`5`_
  * Makes it easy to prove things
 
 ### Type Checking rules(!)
- * `e1: T1 and e2: T1` => `e1 + e2 : T1`
- * `f: T1 -> T2 and e: T1` => `f e : T2`
- * `e1: T1 and e2: T2` => `(e1, e2): T1 * T2`
+ * `e1: T1` and `e2: T1` => `e1 + e2 : T1`
+ * `f: T1 -> T2` and `e: T1` => `f e : T2`
+ * `e1: T1` and `e2: T2` => `(e1, e2): T1 * T2`
  * `T1 -> T2 -> T3` == `T1 -> (T2 -> T3)` (currying)
     * `f: A -> B -> C`
        * Returns `C` if given two arguments
        * Returns `g: B -> C` if given one argument (partially applied)
  * Values of type `t option` are either `None` or `Some t`
-    * match statements must handle both
+    * Match statements must handle both
  * `::` (cons) takes `T :: T list`
  * `(fun x -> e2) e1` == `let x = e1 in e2`
 
@@ -88,19 +88,19 @@ etc.) _`5`_
       2. `type sitree = int stree`
 
 ### Important functions
- * **map** `(f:'a -> 'b) (xs:'a list) : 'b list`
-   * applies `f` to every item in `xs`
- * **fold\_right** `(f:'a -> 'b -> 'b) (xs:'a list) (u:'b) : 'b`
-   * applies `f` to each item in `xs`, using `u` as an accumulator
-   * can implement basically everything with this, including map and filter
-   * right associative (works right to left): `f(a, f(b, f(c, z)))`
- * **fold\_left** `(f:'a -> 'b -> 'a) (u:'a) (xs:'b list) : 'a`
-   * same as `fold_right` but is left associative: `f(f(f(z, a), b), c)`
-   * unlike `fold_right`, is tail recursive (thus more efficient)
- * **reduce** `(f:'a -> 'b -> 'b) (u:'b) (xs:'a list) : 'b`
-   * literally just `fold_right` but with arguments in a different order
- * **filter** `(f: 'a -> bool) -> (l: 'a list) -> 'a list`
-   * returns list formed of all elements `x` in `l` such that `f x = true`
+ * **`map`** `(f:'a -> 'b) (xs:'a list) : 'b list`
+   * Applies `f` to every item in `xs`
+ * **`fold\_right`** `(f:'a -> 'b -> 'b) (xs:'a list) (u:'b) : 'b`
+   * Applies `f` to each item in `xs`, using `u` as an accumulator
+   * Can implement basically everything with this, including map and filter
+   * Right associative (works right to left): `f(a, f(b, f(c, z)))`
+ * **`fold_left`** `(f:'a -> 'b -> 'a) (u:'a) (xs:'b list) : 'a`
+   * Same as `fold_right` but is left associative: `f(f(f(z, a), b), c)`
+   * Unlike `fold_right`, is tail recursive (thus more efficient)
+ * **`reduce`** `(f:'a -> 'b -> 'b) (u:'b) (xs:'a list) : 'b`
+   * Literally just `fold_right` but with arguments in a different order
+ * **`filter`** `(f: 'a -> bool) -> (l: 'a list) -> 'a list`
+   * Returns list formed of all elements `x` in `l` such that `f x = true`
 
 ### Ocaml Objects
  * They exist
@@ -118,12 +118,12 @@ etc.) _`5`_
  * `let f x = body` == `let f = (fun x -> body)`
     * AKA function de-sugaring
  * `(fun x -> ... x ...) arg` == `... arg ...`
-    * if arg is a value or always produces one
+    * If arg is a value or always produces one
     * AKA substitution
  * `let f = def` == `let f x = (def) x`
     * AKA eta-expansion
  * 2 expressions are equal iff:
-    * both evaluate to same value, or
+    * Both evaluate to same value, or
     * both raise the same exception, or
     * both infinite loop
  * if `e1 = e2` then `foo e1 = foo e2`
@@ -141,7 +141,7 @@ etc.) _`5`_
  3. State Inductive Hypothesis (and which var it's a function of)
     * Remember to make sure IH is working on smaller values than your case!
  3. Prove case `k+1`, assuming proof is true for some `k`
-    * must cover all cases one way or another.
+    * Must cover all cases one way or another.
 
 ### Important notes
  * Ocaml evaluates function arguments to a value _before_ calling the function
@@ -157,7 +157,7 @@ etc.) _`5`_
  * Data representations:
     * Tuples - Consecutive bytes of memory (like Java arrays)
     * Lists - Linked List
-    * Parameterized types: Name of type, pointer to address of tuple of data
+    * Parameterized types - Name of type, pointer to address of tuple of data
  * Space allocated when constructors are used or closures are created
  * Often must also estimate heap space used from closures
     * Cost of environment + (varname+value pairs)
@@ -194,16 +194,16 @@ etc.) _`5`_
 
 ## Modules
  * They're nice because they:
-    * abstract away how functions are implemented
-    * make it easy to swap implementations later
- * **Signature**: interface specifying abstract type and set of operations
+    * Abstract away how functions are implemented
+    * Make it easy to swap implementations later
+ * **Signature**: Interface specifying abstract type and set of operations
    on it
- * **Structure**: implementation defining types and values satisfying an
+ * **Structure**: Implementation defining types and values satisfying an
    interface
     * Can match any signature as long as it has _at least_ the definitions in
       the signature's interface
     * Functions not in the signature's interface are inaccessible to clients 
- * **Functor**: parameterized module, basically a function that takes modules
+ * **Functor**: Parameterized module, basically a function that takes modules
    and produces new ones
     * Makes refactoring and reusing modules easy
  * **Anonymous Structures**
@@ -238,7 +238,7 @@ etc.) _`5`_
       implementation to use the other module's implementation (while still
       being the same value)
     * `is_related(v1, v2)` takes `v1` from `M1` and `v2` from `M2`
-    * if modules are equivalent, `is_related(v1, v2)` implies
+    * If modules are equivalent, `is_related(v1, v2)` implies
       `is_related(M1.f v1, M2.f v2)`
 
 
@@ -251,23 +251,23 @@ etc.) _`5`_
     * Sometimes it's just faster/more efficient
  * `t ref` - basically a pointer, like in C
     * Contents of ref can be read/written, allows mutable state
-       * create new `ref` with contents `42`: `ref 42`
-       * read contents: `!r`
-       * write contents: `r := 5`
-       * if I create a new variable `s = r`, `!s == !r`
+       * Create new `ref` with contents `42`: `ref 42`
+       * Read contents: `!r`
+       * Write contents: `r := 5`
+       * If I create a new variable `s = r`, `!s == !r`
     * Recommended: ref pointing to immutable structure (iff mutable state is
       needed)
     * Recommended: encapsulate behind an interface (keep clients from messing
       with it)
- * possible use: memoizing functions
-    * basically caching result if something is called repeatedly
+ * Possible use: memoizing functions
+    * Basically caching result if something is called repeatedly (see laziness)
 
 ### Other mutable things
  * Mutable records: just write mutable before each field name
  * Arrays
-    * read the ith element: `A.(i)`
-    * write the ith element: `A.(i) <- 42`
-    * make an array of length `42` and all elements initialized to `'x'`:
+    * Read the ith element: `A.(i)`
+    * Write the ith element: `A.(i) <- 42`
+    * Make an array of length `42` and all elements initialized to `'x'`:
       `Array.make 42 'x'`
 
 
@@ -277,7 +277,7 @@ etc.) _`5`_
        * Each element in infinite stream is an element cons'd onto a function
          that produces the next item
        * We want to avoid executing that function until we're asked to do so
-    * won't be efficient because every time we access the nth element we
+    * Won't be efficient because every time we access the nth element we
       recalculate 0..(n-1)
        * Solution: memoize (cache results)
        * (Assignment 6)
@@ -300,14 +300,14 @@ etc.) _`5`_
  * **Speedup**: Sequential execution time divided by parallel execution time
     * Perfect speedup (aka _linear speedp_) if speedup=# of cores
  * Working with multiple threads is hard
-    * can be nondeterministic
-    * can implicitly influence each other
-    * race conditions
-    * deadlocks
-    * busy waiting
-    * have to deal with synchronization to mitigate this stuff
+    * Can be nondeterministic
+    * Can implicitly influence each other
+    * Race conditions
+    * Deadlocks
+    * Busy waiting
+    * Have to deal with synchronization to mitigate this stuff
     * Functional programming makes it easier
-       * _if code is purely functional, the order that it's run in doesn't
+       * _If code is purely functional, the order that it's run in doesn't
          matter_ (imperative programming with side effects breaks everything)
       * **Futures**
         * Eliminate a lot of multithreading problems
@@ -318,7 +318,7 @@ etc.) _`5`_
  * **Work**: Cost of executing a program with 1 processor
  * **Span**: Cost of executing a program with an infinite # of processors
  * Parallelism = work / span
-    * if work = span, it's sequential
+    * If work = span, it's sequential
  * How you schedule jobs impacts performance
     * Some jobs may depend on each other
  * Greedy scheduling - give a task to a processor as soon as processor is free
@@ -330,17 +330,17 @@ etc.) _`5`_
       hard to parallelize things that use lists
  * Balanced Trees are ok
     * Splitting is constant time
-    * merging is poly-log
+    * Merging is poly-log
  * Parallel Sequences
     * Operations
        * Creation (aka tabulate): work=n but span=1
        * Indexing element, splitting sequence takes constant span
-       * map
-       * scan and fold are log n span!
+       * Map
+       * Scan and fold are log n span!
  * Tips for operations over parallel collections:
     * Associativity allows parallelism
-       * reduce allows log n span for example
+       * Reduce allows log n span for example
     * Some operations may require multiple passes
-       * example: parallel prefix-sum (ppt 20, slide 91)
+       * Example: parallel prefix-sum (ppt 20, slide 91)
     * Sequential cutoff good for performance, removes overhead for small inputs
       where threading is unecessary
