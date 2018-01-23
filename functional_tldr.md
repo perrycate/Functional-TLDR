@@ -189,7 +189,7 @@ etc.) _`5`_
     1. **Direct Style**: `let g input = f3 (f2 (f1 input))`
     2. **A-Normal Form**: `let g input = let x1 = f1 input in let x2 = f2 x1 in
        f3 x2`
-    3. **CPS-Converted**: `let g input k = f1 input (fun x1 -> f2 x1 (fnu x2 ->
+    3. **CPS-Converted**: `let g input k = f1 input (fun x1 -> f2 x1 (fun x2 ->
        f3 x2 k))`
 
 
@@ -240,7 +240,9 @@ etc.) _`5`_
       being the same value)
     * `is_related(v1, v2)` takes `v1` from `M1` and `v2` from `M2`
     * If modules are equivalent, `is_related(v1, v2)` implies
-      `is_related(M1.f v1, M2.f v2)`
+      `is_related(M1.f v1, M2.f v2)` (or M1.f v1 == M2.f v2)
+    * If function in `S` returns `t option`, show `M1` and `M2` both return
+      `None` or `Some u1` and `Some u2` such that `is_related(u1, u2)` is true
 
 
 ## Refs
@@ -324,6 +326,9 @@ etc.) _`5`_
     * Some jobs may depend on each other
  * Greedy scheduling - give a task to a processor as soon as processor is free
     * It's decent, used in practice.
+    * max(work/p, span) <= T(p) < work/p + span
+       * p = number of processors
+       * T(p) = Time to run on p processors
 
 ### Parallel Collections
  * Lists are bad
@@ -337,7 +342,7 @@ etc.) _`5`_
        * Creation (aka tabulate): work=n but span=1
        * Indexing element, splitting sequence takes constant span
        * Map
-       * Scan and fold are log n span!
+       * Scan is log n span! (Scan = basically parallelized fold)
  * Tips for operations over parallel collections:
     * Associativity allows parallelism
        * Reduce allows log n span for example
